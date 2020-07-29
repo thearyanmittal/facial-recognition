@@ -3,8 +3,8 @@ import os
 
 
 name = input("Enter your name: \n")
-final_num_pics = 7
-num_pics = 7
+final_num_pics = 50
+num_pics = 50
 face_cascade = cv2.CascadeClassifier('cascades/data/haarcascade_frontalface_alt2.xml')
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
