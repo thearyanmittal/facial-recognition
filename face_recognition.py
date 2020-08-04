@@ -67,7 +67,7 @@ while True:
         cv2.putText(frame, tf_name, (x, y+h+20), tf_font, 1, tf_color, thickness=tf_stroke, lineType=cv2.LINE_AA)
 
         #save the region of interest as an image
-        cv2.imwrite("color_face.png", roi_color)
+        #cv2.imwrite("color_face.png", roi_color)
 
         #draw a rectangle surrounding face
         rec_color = (0, 0, 255) #BGR
