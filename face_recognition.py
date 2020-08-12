@@ -58,13 +58,13 @@ while True:
         name = labels[id_]
         color = (0, 255, 0) #BGR
         stroke = 2
-        cv2.putText(frame, name, (x,y), font, 1, color, thickness=stroke, lineType=cv2.LINE_AA)
+        cv2.putText(frame, name, (x, y+h+20), font, 1, color, thickness=stroke, lineType=cv2.LINE_AA)
 
         tf_font = cv2.FONT_HERSHEY_COMPLEX
         tf_name = labels[tf_id]
         tf_color = (0, 145, 255) #BGR
         tf_stroke = 2
-        cv2.putText(frame, tf_name, (x, y+h+20), tf_font, 1, tf_color, thickness=tf_stroke, lineType=cv2.LINE_AA)
+        cv2.putText(frame, tf_name, (x,y), tf_font, 1, tf_color, thickness=tf_stroke, lineType=cv2.LINE_AA)
 
         #save the region of interest as an image
         #cv2.imwrite("color_face.png", roi_color)

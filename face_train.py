@@ -125,7 +125,7 @@ model.compile(
 )
 
 #train the model
-EPOCHS = 12
+EPOCHS = 15
 early_stop = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=2, restore_best_weights=True) #stop the model from overfitting
 
 history = model.fit(
