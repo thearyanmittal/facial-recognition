@@ -58,6 +58,8 @@ while True:
         name = labels[id_]
         color = (0, 255, 0) #BGR
         stroke = 2
+        
+        #uncomment for LBPH classification for comparison
         cv2.putText(frame, name, (x, y+h+20), font, 1, color, thickness=stroke, lineType=cv2.LINE_AA)
 
         tf_font = cv2.FONT_HERSHEY_COMPLEX
