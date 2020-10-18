@@ -10,11 +10,8 @@ from tensorflow.keras import layers
 
 #"walk" through files, looking for .jpg, .jpeg, or .png and add them to list of training objects
 
-#gives me the directory of where this code is (same directory as pics)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 #image directory
-img_dir = os.path.join(BASE_DIR, "faces")
+img_dir = os.path.abspath('C:\\Users\\aarya\\Documents\\Python\\facial_recognition_opencv\\faces')
 
 #cascade classifier to detect region of interest later
 face_cascade = cv2.CascadeClassifier("cascades/data/haarcascade_frontalface_alt2.xml")
@@ -48,7 +45,6 @@ for root, dirs, files in os.walk(img_dir):
                 current_id += 1
 
             y_id = label_ids[label] #to make it easy to append to y_labels list
-
             #convert to numpy array, grayscale
             pil_img = Image.open(path).convert("L") #make image grayscale with "L" keyword
             array_img = np.array(pil_img, "uint8") #uint8 makes each value in array 8-bit unsigned integer (0-255)
@@ -76,16 +72,17 @@ for root, dirs, files in os.walk(img_dir):
 #print(y_labels)
 
 
+#uncomment to train the LBPH model
 #pickle labels (save in .pkl file) for use in face_recognition.py
 with open("labels.pkl", 'wb') as f:
     pickle.dump(label_ids, f)
 
-#create facial recognizer (try LBPH)
-recognizer = cv2.face.LBPHFaceRecognizer_create()
+# #create facial recognizer (try LBPH)
+# recognizer = cv2.face.LBPHFaceRecognizer_create()
 
-#train classifier (make sure both are in numpy array form)
-recognizer.train(x_train, np.array(y_labels))
-recognizer.save("trainer.yml") #save as YAML file
+# #train classifier (make sure both are in numpy array form)
+# recognizer.train(x_train, np.array(y_labels))
+# recognizer.save("trainer.yml") #save as YAML file
 
 
 
@@ -104,7 +101,7 @@ tf_labels = y_labels
 #the classifier that will be used is ResNet
 #use feature_vector version, not classification; feature_vector has last layer removed so it's customizable
 
-URL = 'https://tfhub.dev/google/imagenet/resnet_v2_50/feature_vector/4' #url of the model
+URL = 'https://tfhub.dev/google/imagenet/mobilenet_v2_100_224/feature_vector/4' #url of the model
 resnet = hub.KerasLayer(URL, trainable=False) #don't train existing parameters
 
 #build the Sequential model (put in the ResNet feature vector, then add my output layer with appropriate number of neurons)
