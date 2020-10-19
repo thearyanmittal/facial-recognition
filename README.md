@@ -6,9 +6,9 @@ This is a Python facial recognition program that can identify and label faces in
 ### LBPH Face Recognizer
 Face recognizer built into the OpenCV library.
 
-### TensorFlow Transfer Learning Model (ResNet)
-A Keras Sequential model with two layers (~24,000,000 total parameters).
-1. the ResNet image classification model (trained on the ImageNet dataset) with last layer removed
+### TensorFlow Transfer Learning Model (Inception ResNet V2)
+A Keras Sequential model with two layers (~54,000,000 total parameters).
+1. the Inception image classification model (trained on the ImageNet dataset) with last layer removed
 2. a Dense layer with one neuron for each potential face
 
 It performs *much* better than the LBPH recognizer.
@@ -21,7 +21,7 @@ It performs *much* better than the LBPH recognizer.
 ## Running the Program
 Run the .py files in the order they are presented above. `face_recognition.py` will show live webcam footage with a rectangle around the faces in the shot and the corresponding name. 
 
-The LBPH recognizer's classification is shown in green above the box. The TensorFlow model's classification is shown in orange below the box.
+The LBPH recognizer's classification is shown in green above the box (this is optional; uncomment the appropriate lines in `face_recognition.py` and `face_train.py` to see this). The TensorFlow model's classification is shown in orange below the box.
 
 ## Libraries Used
 * OpenCV
@@ -31,5 +31,6 @@ The LBPH recognizer's classification is shown in green above the box. The Tensor
 * PIL
 * pickle
 
-#### Note:
+#### Notes:
 The actual images in the faces directory have been removed for privacy
+`variables.data-00000-of-00001` (where the weights of the neural network are stored) has been omitted due to sheer size

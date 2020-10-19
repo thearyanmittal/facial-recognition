@@ -101,12 +101,12 @@ tf_labels = y_labels
 #the classifier that will be used is ResNet
 #use feature_vector version, not classification; feature_vector has last layer removed so it's customizable
 
-URL = 'https://tfhub.dev/google/imagenet/mobilenet_v2_100_224/feature_vector/4' #url of the model
-resnet = hub.KerasLayer(URL, trainable=False) #don't train existing parameters
+URL = 'https://tfhub.dev/google/imagenet/inception_resnet_v2/feature_vector/4' #url of the model
+inception = hub.KerasLayer(URL, trainable=False) #don't train existing parameters
 
 #build the Sequential model (put in the ResNet feature vector, then add my output layer with appropriate number of neurons)
 model = tf.keras.Sequential(layers=[
-    resnet,
+    inception,
     tf.keras.layers.Dense(current_id, activation='softmax') #softmax activation for classification (produces prob. dist.)
 ])
 
@@ -123,7 +123,7 @@ model.compile(
 
 #train the model
 EPOCHS = 15
-early_stop = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=2, restore_best_weights=True) #stop the model from overfitting
+early_stop = tf.keras.callbacks.EarlyStopping(monitor='loss', min_delta=5e-4, patience=2, restore_best_weights=True) #stop the model from overfitting
 
 history = model.fit(
     x=np.asarray(tf_train).astype(np.float32),
