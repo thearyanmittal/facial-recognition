@@ -3,6 +3,10 @@ from PIL import Image #PythonImageLibrary for working with training images
 import numpy as np
 import cv2
 import pickle #to save labels for use in face_recognition.py
+import datetime
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set()
 
 import tensorflow as tf #for advanced classification
 import tensorflow_hub as hub
@@ -47,6 +51,7 @@ for root, dirs, files in os.walk(img_dir):
             y_id = label_ids[label] #to make it easy to append to y_labels list
             #convert to numpy array, grayscale
             pil_img = Image.open(path).convert("L") #make image grayscale with "L" keyword
+            color = cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2RGB)
             array_img = np.array(pil_img, "uint8") #uint8 makes each value in array 8-bit unsigned integer (0-255)
             color_array_img = np.array(Image.open(path), 'uint8') #save the colored version of the previous two lines
 
@@ -60,7 +65,8 @@ for root, dirs, files in os.walk(img_dir):
                 color_roi = color_array_img[y:y+h, x:x+w]
 
                 x_train.append(roi) #add the region of interest to training data
-                tf_x_train.append(color_roi) #the tensorflow model needs color
+                tf_x_train.append(color[y:y+h,x:x+w])
+                #tf_x_train.append(color_roi) #the tensorflow model needs color
                 y_labels.append(y_id) #add the corresponding y_id to the training labels
 
             #count-=1
@@ -77,12 +83,12 @@ for root, dirs, files in os.walk(img_dir):
 with open("labels.pkl", 'wb') as f:
     pickle.dump(label_ids, f)
 
-# #create facial recognizer (try LBPH)
-# recognizer = cv2.face.LBPHFaceRecognizer_create()
+#create facial recognizer (try LBPH)
+recognizer = cv2.face.LBPHFaceRecognizer_create()
 
-# #train classifier (make sure both are in numpy array form)
-# recognizer.train(x_train, np.array(y_labels))
-# recognizer.save("trainer.yml") #save as YAML file
+#train classifier (make sure both are in numpy array form)
+recognizer.train(x_train, np.array(y_labels))
+recognizer.save("trainer.yml") #save as YAML file
 
 
 
@@ -91,43 +97,92 @@ with open("labels.pkl", 'wb') as f:
 #tensorflow classification (due to the small amount of training data, I will use a pre-trained classifier from TensorFlow Hub)
 
 #preprocess data for use by tensorflow classifier (resize and normalize)
-def preprocess(arr):
-    resized = np.array([tf.image.resize(img, (224, 224)) for img in arr])
+IMG_SIZE = 224
+
+def normalize(arr):
+    resized = np.array([tf.image.resize(img, (IMG_SIZE, IMG_SIZE)) for img in arr])
     return resized / 255.
 
-tf_train = preprocess(tf_x_train)
-tf_labels = y_labels
+tf_x_train = normalize(tf_x_train) #make this augmented
+tf_y_train = y_labels
 
-#the classifier that will be used is ResNet
+#augment data in various ways to 1. add training data and 2. increase model's ability to generalize
+generator = tf.keras.preprocessing.image.ImageDataGenerator(rotation_range=45, 
+                                                            brightness_range=(0.5,1.5), #this is the main one 
+                                                            horizontal_flip=True)
+
+
+# use created augmentation generator to flow data from the image directory
+tf_train = []
+tf_labels = []
+count = 0
+increase_factor = 2 #change this according to how many training images you want/have
+start_time = datetime.datetime.now()
+
+for x,y in generator.flow(tf_x_train, y_labels, batch_size=1):
+    tf_train.append(x)
+    tf_labels.append(y)
+    # print((increase_factor*len(pre_tf_train)) - count) #if you want the program to count down the images
+    count += 1
+    if count == (int(increase_factor * len(tf_x_train))): #when the set of training data has doubled, that's enough 
+        break
+
+end_time = datetime.datetime.now()
+print(f"Total Time to Process Training Data: {end_time - start_time}")
+
+#reshape it into something the model accepts (remove batch size)
+tf_minus_batch = []
+for batch in tf_train:
+    for img in batch:
+        tf_minus_batch.append(img)
+
+tf_train = np.array(tf_minus_batch)
+
+#view some of the augmented images
+def plot_imgs(arr):
+    num_imgs = 4 # I want 4 rows and 4 columns of images
+    plt.figure(figsize=(10,10))
+    for i in range(num_imgs * num_imgs):
+        plt.subplot(num_imgs, num_imgs, i+1)
+        plt.imshow(arr[i].astype(np.uint8))
+
+
+plot_imgs(tf_train)
+plt.show()
+
+tf_train = normalize(tf_train) #normalize all the augmented data
+
+#the classifier that will be used is Resnet 50
 #use feature_vector version, not classification; feature_vector has last layer removed so it's customizable
 
-URL = 'https://tfhub.dev/google/imagenet/inception_resnet_v2/feature_vector/4' #url of the model
-inception = hub.KerasLayer(URL, trainable=False) #don't train existing parameters
+URL = 'https://tfhub.dev/tensorflow/resnet_50/feature_vector/1' #url of the model
+resnet = hub.KerasLayer(URL, trainable=False) #don't train existing parameters
 
 #build the Sequential model (put in the ResNet feature vector, then add my output layer with appropriate number of neurons)
 model = tf.keras.Sequential(layers=[
-    inception,
-    tf.keras.layers.Dense(current_id, activation='softmax') #softmax activation for classification (produces prob. dist.)
+    resnet,
+    tf.keras.layers.Dropout(0.5), #added a dropout layer to increase model's generalization ability and future accuracy
+    tf.keras.layers.Dense(current_id, activation='softmax'), #softmax activation for classification (produces prob. dist.)
 ])
 
-model.build([None, 224, 224, 3]) #build the model (batch size of none; input size of 224x224 and 3 color channels RGB)
+model.build([None, IMG_SIZE, IMG_SIZE, 3]) #build the model (batch size of 1; expects input size of 299x299 and 3 color channels RGB)
 
-print(model.summary()) #if I want to view the model's parameters (23,564,800 trainable; 6,147 untrainable)
+print(model.summary()) #if I want to view the model's parameters (23,569,348 untrainable; 8,196 trainable for 4 classes)
 
 #compile the model
 model.compile(
     optimizer='adam', #adam optimizer is industry-standard; best optimizer
-    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), #standard loss used for classification (ResNet doc.)
+    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), #standard loss used for classification (Inception doc.)
     metrics=['accuracy']
 )
 
 #train the model
 EPOCHS = 15
-early_stop = tf.keras.callbacks.EarlyStopping(monitor='loss', min_delta=5e-4, patience=2, restore_best_weights=True) #stop the model from overfitting
+early_stop = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3, restore_best_weights=True) #stop the model from overfitting
 
 history = model.fit(
-    x=np.asarray(tf_train).astype(np.float32),
-    y=np.asarray(tf_labels).astype(np.float32),
+    x=np.asarray(tf_train),
+    y=np.asarray(tf_labels),
     epochs=EPOCHS,
     verbose=1,
     shuffle=True,
@@ -136,3 +191,17 @@ history = model.fit(
 
 #save the model for use in face_recognition.py
 model.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tf_saved_model'))
+
+#create graphs of training accuracy and loss
+plt.figure(figsize=(10,10))
+plt.suptitle("Loss and Accuracy over Training")
+
+plt.subplot(1, 2, 1)
+plt.plot(history.history['loss'], 'r')
+plt.title('Loss')
+
+plt.subplot(1, 2, 2)
+plt.plot(history.history['accuracy'], 'b')
+plt.title('Accuracy')
+
+plt.show()

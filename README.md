@@ -6,8 +6,8 @@ This is a Python facial recognition program that can identify and label faces in
 ### LBPH Face Recognizer
 Face recognizer built into the OpenCV library.
 
-### TensorFlow Transfer Learning Model (Inception ResNet V2)
-A Keras Sequential model with two layers (~54,000,000 total parameters).
+### TensorFlow Transfer Learning Model (ResNet 50)
+A Keras Sequential model with two layers (~24,000,000 total parameters, depending on number of classes).
 1. the Inception image classification model (trained on the ImageNet dataset) with last layer removed
 2. a Dense layer with one neuron for each potential face
 
@@ -30,6 +30,8 @@ The LBPH recognizer's classification is shown in green above the box (this is op
 * numpy
 * PIL
 * pickle
+* matplotlib.pyplot
+* seaborn
 
 #### Notes:
 The actual images in the faces directory have been removed for privacy

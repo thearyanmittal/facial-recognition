@@ -1,6 +1,5 @@
 import cv2
 import os
-import shutil
 
 
 name = input("Enter your name: \n")
@@ -15,7 +14,7 @@ face_dir = os.path.join(img_dir, name.lower())
 if not os.path.isdir(face_dir):
     os.mkdir(face_dir)
 else:
-    shutil.rmtree(face_dir)
+    os.rmdir(face_dir)
     os.mkdir(face_dir)
 
 cap = cv2.VideoCapture(0)
