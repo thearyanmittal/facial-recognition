@@ -34,5 +34,5 @@ The LBPH recognizer's classification is shown in green above the box (this is op
 * seaborn
 
 #### Notes:
-The actual images in the faces directory have been removed for privacy
-`variables.data-00000-of-00001` (where the weights of the neural network are stored) has been omitted due to sheer size
+1. The actual images in the faces directory have been removed for privacy
+2. `variables.data-00000-of-00001` (where the weights of the neural network are stored) has been omitted due to sheer size
