@@ -172,7 +172,7 @@ print(model.summary()) #if I want to view the model's parameters (23,569,348 unt
 #compile the model
 model.compile(
     optimizer='adam', #adam optimizer is industry-standard; best optimizer
-    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), #standard loss used for classification (Inception doc.)
+    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), #standard loss used for classification (ResNet doc.)
     metrics=['accuracy']
 )
 
