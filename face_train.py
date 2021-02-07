@@ -155,7 +155,7 @@ tf_train = normalize(tf_train) #normalize all the augmented data
 #the classifier that will be used is Resnet 50
 #use feature_vector version, not classification; feature_vector has last layer removed so it's customizable
 
-URL = 'https://tfhub.dev/tensorflow/resnet_50/feature_vector/1' #url of the model
+URL = "https://tfhub.dev/tensorflow/resnet_50/feature_vector/1" #url of the model
 resnet = hub.KerasLayer(URL, trainable=False) #don't train existing parameters
 
 #build the Sequential model (put in the ResNet feature vector, then add my output layer with appropriate number of neurons)

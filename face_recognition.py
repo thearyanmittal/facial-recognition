@@ -65,7 +65,7 @@ while True:
         stroke = 2
 
         #uncomment for LBPH classification for comparison
-        #cv2.putText(frame, name, (x, y+h+20), font, 1, color, thickness=stroke, lineType=cv2.LINE_AA)
+        cv2.putText(frame, name, (x, y+h+20), font, 1, color, thickness=stroke, lineType=cv2.LINE_AA)
 
         tf_font = cv2.FONT_HERSHEY_COMPLEX
         tf_name = labels[tf_id]
