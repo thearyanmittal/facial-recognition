@@ -82,7 +82,7 @@ while True:
         cv2.rectangle(frame, (x, y), (x+w, y+h), rec_color, rec_stroke)
 
     #MASK DETECTION SECTION
-    faces = face_detect.detectMultiScale(grayscale, scaleFactor=None, minNeighbors=None)
+    faces = face_detect.detectMultiScale(grayscale, scaleFactor=1.5, minNeighbors=1)
 
     face_list = []
 
@@ -105,7 +105,7 @@ while True:
         # uncomment to see another rectangle around the face
         # cv2.rectangle(frame, (x, y), (x+w, y+h), (255,105,0), 2, cv2.LINE_AA) #a nice blue
 
-        detected_mouths = mouth_detect.detectMultiScale(roi, scaleFactor=None, minNeighbors=4)
+        detected_mouths = mouth_detect.detectMultiScale(roi, scaleFactor=2, minNeighbors=None)
         mouth_list = []
 
         for (x,y,w,h) in detected_mouths:
@@ -124,7 +124,7 @@ while True:
 
         #     cv2.rectangle(frame, (mouthx, mouthy), (mouthx+mouth[2], mouthy+mouth[3]), (0, 255, 0), 2, cv2.LINE_AA) #green
 
-        detected_noses = nose_detect.detectMultiScale(roi, scaleFactor=None, minNeighbors=4)
+        detected_noses = nose_detect.detectMultiScale(roi, scaleFactor=1.1, minNeighbors=1)
 
         nose_list = []
 

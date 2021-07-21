@@ -1,5 +1,5 @@
-# Facial Recognition with OpenCV and Tensorflow
-This is a Python facial recognition program that can identify and label faces in the computer's live webcam footage. 
+# Facial Recognition and Mask Detection with OpenCV and Tensorflow
+This is a Python facial recognition program that can identify and label faces in the computer's live webcam footage, as well as detect whether a facemask is being worn correctly. 
 
 ## Classification Methods
 
